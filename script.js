@@ -30,31 +30,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function mostrarAgendamentos(dia, data) {
-    tituloDia.textContent = `Agendamentos de ${dia} - ${data}`;
-    listaAgendamentos.innerHTML = "";
+function mostrarAgendamentos(dia, data) {
+  tituloDia.textContent = `Agendamentos de ${dia} - ${data}`;
+  listaAgendamentos.innerHTML = "";
 
-    const horarios = (dia === "sexta" || dia === "sabado") ? horariosExtendidos : horariosNormais;
+  // 🔁 Remover seleção de todos os botões
+  document.querySelectorAll("#calendario-mensal button").forEach(btn => {
+    btn.classList.remove("selecionado");
+  });
 
-    horarios.forEach(h => {
-      const ag = agendamentos.find(a => a.data === data && a.horario === h);
-      const li = document.createElement("li");
+  // ✅ Adicionar destaque no botão clicado
+  const botoes = document.querySelectorAll("#calendario-mensal button");
+  botoes.forEach(btn => {
+    if (btn.textContent.includes(data)) {
+      btn.classList.add("selecionado");
+    }
+  });
 
-      if (ag) {
-        if (ag.status === "bloqueado") {
-          li.innerHTML = `<strong>${h}</strong> -  🔒Horário bloqueado 
-            <button class="botao-desbloquear"  onclick="desbloquearHorario('${ag.id}', '${dia}', '${data}')">Desbloquear</button>`;
-        } else {
-          li.innerHTML = `<strong>${h}</strong> - ${ag.nome} (${ag.telefone})`;
-        }
+  // ⬇️ Scroll suave para os agendamentos
+  setTimeout(() => {
+    listaAgendamentos.scrollIntoView({ behavior: "smooth" });
+  }, 100);
+
+  const horarios = (dia === "sexta" || dia === "sabado") ? horariosExtendidos : horariosNormais;
+
+  horarios.forEach(h => {
+    const ag = agendamentos.find(a => a.data === data && a.horario === h);
+    const li = document.createElement("li");
+
+    if (ag) {
+      if (ag.status === "bloqueado") {
+        li.innerHTML = `<strong>${h}</strong> - Horário bloqueado 
+          <button onclick="desbloquearHorario('${ag.id}', '${dia}', '${data}')" class="botao-desbloquear">Desbloquear</button>`;
       } else {
-        li.innerHTML = `<strong>${h}</strong> - ✅Disponível 
-          <button class="botao-bloquear" onclick="bloquearHorario('${dia}', '${data}', '${h}')">Bloquear</button>`;
+        li.innerHTML = `<strong>${h}</strong> - ${ag.nome} (${ag.telefone})`;
       }
+    } else {
+      li.innerHTML = `<strong>${h}</strong> - Disponível 
+        <button onclick="bloquearHorario('${dia}', '${data}', '${h}')" class="botao-bloquear">Bloquear</button>`;
+    }
 
-      listaAgendamentos.appendChild(li);
-    });
-  }
+    listaAgendamentos.appendChild(li);
+  });
+}
+
 
   window.bloquearHorario = (dia, data, horario) => {
     const novo = {
