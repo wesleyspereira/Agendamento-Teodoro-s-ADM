@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Teodoro's - Barbeiro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header>
+    <img src="img/logo.jpg" alt="Logo Barbearia Teodoro's" class="logo">
+  </header>
+
+  <main>
+    <h1>Painel do Barbeiro</h1>
+    <h2>Olá Amaury</h2>
+
+    <nav class="menu">
+      <button class="menu-btn active" data-section="agenda">📅 Agenda</button>
+      <button class="menu-btn" data-section="historico">📜 Histórico</button>
+    </nav>
+
+    <section id="agenda" class="secao ativa">
+      <h2>🗓️Agenda Mensal</h2>
+      <div class="grid-dias" id="calendario-mensal"></div>
+      <h3 id="dia-selecionado">Selecione um dia</h3>
+      <ul id="lista-agendamentos"></ul>
+    </section>
+
+    <section id="historico" class="secao">
+      <h2>📋Histórico</h2>
+      <ul id="lista-historico"></ul>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+
+  <footer class="rodape">
+    © 2025 Barbearia Teodoro's. Todos os direitos reservados.
+  </footer>
+</body>
+
+</html>
