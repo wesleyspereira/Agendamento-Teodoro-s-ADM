@@ -169,3 +169,8 @@ ul li {
     font-size: 14px;
   }
 }
+.grid-dias button.selecionado {
+  background-color: #10b981;
+  transform: scale(1.05);
+  border: 2px solid #fff;
+}
