@@ -2,44 +2,59 @@
 <html lang="pt-br">
 
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Teodoro's - Barbeiro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
   <header>
-    <img src="img/logo.jpg" alt="Logo Barbearia Teodoro's" class="logo">
+    <img src="img/logo.jpg" alt="Logo Barbearia Teodoro's" class="logo" />
   </header>
 
   <main>
     <h1>Painel do Barbeiro</h1>
     <h2>Olá Amaury</h2>
 
+    <!-- Menu de navegação -->
     <nav class="menu">
       <button class="menu-btn active" data-section="agenda">📅 Agenda</button>
       <button class="menu-btn" data-section="historico">📜 Histórico</button>
     </nav>
 
+    <!-- Seção de Agenda -->
     <section id="agenda" class="secao ativa">
-      <h2>🗓️Agenda Mensal</h2>
+      <h2>Agenda Mensal</h2>
+
+      <!-- Controles de navegação de mês -->
+      <div class="mes-navegacao">
+        <button id="mes-anterior">⬅️ Mês Anterior</button>
+        <span id="mes-atual">Agosto de 2025</span>
+        <button id="proximo-mes">Próximo Mês ➡️</button>
+      </div>
+
+
+      <!-- Calendário mensal -->
       <div class="grid-dias" id="calendario-mensal"></div>
+
+      <!-- Agendamentos do dia -->
       <h3 id="dia-selecionado">Selecione um dia</h3>
       <ul id="lista-agendamentos"></ul>
     </section>
 
+    <!-- Seção de Histórico -->
     <section id="historico" class="secao">
-      <h2>📋Histórico</h2>
+      <h2>Histórico</h2>
       <ul id="lista-historico"></ul>
     </section>
   </main>
 
-  <script src="script.js"></script>
-
   <footer class="rodape">
     © 2025 Barbearia Teodoro's. Todos os direitos reservados.
   </footer>
+
+  <script src="script.js"></script>
 </body>
 
 </html>
