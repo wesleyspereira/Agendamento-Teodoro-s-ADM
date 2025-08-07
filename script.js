@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const calendario = document.getElementById("calendario-mensal");
   const listaAgendamentos = document.getElementById("lista-agendamentos");
   const tituloDia = document.getElementById("dia-selecionado");
+  const mesAtualSpan = document.getElementById("mes-atual");
 
   const diasSemana = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"];
   const horariosNormais = ["09:00", "09:30", "10:00", "10:30", "11:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"];
@@ -9,71 +10,85 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let agendamentos = JSON.parse(localStorage.getItem("agendamentos")) || [];
 
+  let dataAtual = new Date();
+  let anoAtual = dataAtual.getFullYear();
+  let mesAtual = dataAtual.getMonth();
+
+  function atualizarTituloMes() {
+    const nomeMes = new Date(anoAtual, mesAtual).toLocaleString("pt-BR", {
+      month: "long",
+      year: "numeric"
+    });
+    mesAtualSpan.textContent = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+  }
+
   function gerarCalendario() {
     calendario.innerHTML = "";
+    const diasNoMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
     const hoje = new Date();
-    const ano = hoje.getFullYear();
-    const mes = hoje.getMonth();
-    const diasNoMes = new Date(ano, mes + 1, 0).getDate();
 
     for (let dia = 1; dia <= diasNoMes; dia++) {
-      const data = new Date(ano, mes, dia);
+      const data = new Date(anoAtual, mesAtual, dia);
       const diaSemana = data.getDay();
       const diaTexto = diasSemana[diaSemana];
       if (["terca", "quarta", "quinta", "sexta", "sabado"].includes(diaTexto)) {
         const btn = document.createElement("button");
         const dataStr = data.toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit' });
         btn.textContent = `${diaTexto}\n${dataStr}`;
-        btn.onclick = () => mostrarAgendamentos(diaTexto, dataStr);
+
+        if (data < new Date().setHours(0, 0, 0, 0)) {
+          btn.disabled = true;
+          btn.style.backgroundColor = "#b91c1c"; // vermelho
+        } else {
+          btn.onclick = () => mostrarAgendamentos(diaTexto, dataStr);
+        }
+
         calendario.appendChild(btn);
       }
     }
+
+    atualizarTituloMes();
   }
 
-function mostrarAgendamentos(dia, data) {
-  tituloDia.textContent = `Agendamentos de ${dia} - ${data}`;
-  listaAgendamentos.innerHTML = "";
+  function mostrarAgendamentos(dia, data) {
+    tituloDia.textContent = `Agendamentos de ${dia} - ${data}`;
+    listaAgendamentos.innerHTML = "";
 
-  // 🔁 Remover seleção de todos os botões
-  document.querySelectorAll("#calendario-mensal button").forEach(btn => {
-    btn.classList.remove("selecionado");
-  });
+    document.querySelectorAll("#calendario-mensal button").forEach(btn => {
+      btn.classList.remove("selecionado");
+    });
 
-  // ✅ Adicionar destaque no botão clicado
-  const botoes = document.querySelectorAll("#calendario-mensal button");
-  botoes.forEach(btn => {
-    if (btn.textContent.includes(data)) {
-      btn.classList.add("selecionado");
-    }
-  });
-
-  // ⬇️ Scroll suave para os agendamentos
-  setTimeout(() => {
-    listaAgendamentos.scrollIntoView({ behavior: "smooth" });
-  }, 100);
-
-  const horarios = (dia === "sexta" || dia === "sabado") ? horariosExtendidos : horariosNormais;
-
-  horarios.forEach(h => {
-    const ag = agendamentos.find(a => a.data === data && a.horario === h);
-    const li = document.createElement("li");
-
-    if (ag) {
-      if (ag.status === "bloqueado") {
-        li.innerHTML = `<strong>${h}</strong> - Horário bloqueado 
-          <button onclick="desbloquearHorario('${ag.id}', '${dia}', '${data}')" class="botao-desbloquear">Desbloquear</button>`;
-      } else {
-        li.innerHTML = `<strong>${h}</strong> - ${ag.nome} (${ag.telefone})`;
+    document.querySelectorAll("#calendario-mensal button").forEach(btn => {
+      if (btn.textContent.includes(data)) {
+        btn.classList.add("selecionado");
       }
-    } else {
-      li.innerHTML = `<strong>${h}</strong> - Disponível 
-        <button onclick="bloquearHorario('${dia}', '${data}', '${h}')" class="botao-bloquear">Bloquear</button>`;
-    }
+    });
 
-    listaAgendamentos.appendChild(li);
-  });
-}
+    setTimeout(() => {
+      listaAgendamentos.scrollIntoView({ behavior: "smooth" });
+    }, 100);
 
+    const horarios = (dia === "sexta" || dia === "sabado") ? horariosExtendidos : horariosNormais;
+
+    horarios.forEach(h => {
+      const ag = agendamentos.find(a => a.data === data && a.horario === h);
+      const li = document.createElement("li");
+
+      if (ag) {
+        if (ag.status === "bloqueado") {
+          li.innerHTML = `<strong>${h}</strong> - Horário bloqueado 
+            <button onclick="desbloquearHorario('${ag.id}', '${dia}', '${data}')" class="botao-desbloquear">Desbloquear</button>`;
+        } else {
+          li.innerHTML = `<strong>${h}</strong> - ${ag.nome} (${ag.telefone})`;
+        }
+      } else {
+        li.innerHTML = `<strong>${h}</strong> - Disponível 
+          <button onclick="bloquearHorario('${dia}', '${data}', '${h}')" class="botao-bloquear">Bloquear</button>`;
+      }
+
+      listaAgendamentos.appendChild(li);
+    });
+  }
 
   window.bloquearHorario = (dia, data, horario) => {
     const novo = {
@@ -114,6 +129,10 @@ function mostrarAgendamentos(dia, data) {
       `;
       lista.appendChild(li);
     });
+
+    setTimeout(() => {
+      lista.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   }
 
   window.cancelarAgendamento = (id) => {
@@ -128,25 +147,42 @@ function mostrarAgendamentos(dia, data) {
   };
 
   document.querySelectorAll(".menu-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".secao").forEach(s => s.classList.remove("ativa"));
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".secao").forEach(s => s.classList.remove("ativa"));
+      btn.classList.add("active");
+      const secao = document.getElementById(btn.dataset.section);
+      secao.classList.add("ativa");
 
-    btn.classList.add("active");
-    const secao = document.getElementById(btn.dataset.section);
-    secao.classList.add("ativa");
+      if (btn.dataset.section === "agenda") {
+        tituloDia.textContent = "";
+        listaAgendamentos.innerHTML = "";
+      }
 
-    // Limpa os dados visuais ao mudar de aba
-    if (btn.dataset.section === "agenda") {
-      tituloDia.textContent = "";
-      listaAgendamentos.innerHTML = "";
-    }
-
-    if (btn.dataset.section === "historico") {
-      renderizarHistorico();
-    }
+      if (btn.dataset.section === "historico") {
+        renderizarHistorico();
+      }
+    });
   });
-});
+
+  // Navegação de meses
+  document.getElementById("mes-anterior").addEventListener("click", () => {
+    mesAtual--;
+    if (mesAtual < 0) {
+      mesAtual = 11;
+      anoAtual--;
+    }
+    gerarCalendario();
+  });
+
+  document.getElementById("proximo-mes").addEventListener("click", () => {
+    mesAtual++;
+    if (mesAtual > 11) {
+      mesAtual = 0;
+      anoAtual++;
+    }
+    gerarCalendario();
+  });
 
   gerarCalendario();
 });
